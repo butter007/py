@@ -32,8 +32,8 @@ def get_content(url, searchDate, type, page=1):
     #    currency_selectinput_tag.select_by_value('1316')
     #    browser.find_elements_by_class_name('search_btn')[1].click()
     jsformsubmit = "document.pageform.submit()"
-    jserectDate = "$('input[type=hidden][name=erectDate]').attr('value',%s)" % searchDate
-    jsnothing = "$('input[type=hidden][name=nothing]').attr('value',%s)" % searchDate
+    jserectDate = "$('input[type=hidden][name=erectDate]').attr('value',%s)" % ("'"+searchDate+"'")
+    jsnothing = "$('input[type=hidden][name=nothing]').attr('value',%s)" % ("'"+searchDate+"'")
     jspage = "$('input[type=hidden][name=page]').attr('value',%s)" % page
     jspjname = "$('input[type=hidden][name=pjname]').attr('value',%s)" % type
     browser.execute_script(jserectDate)
@@ -55,7 +55,7 @@ def getPage(content):
     pages = int(mcounts) // 20 + 1
     etree = html.etree
     htmlcon = etree.HTML(content)
-    result = htmlcon.xpath('//div[@class="BOC_main publish"]/table/tr/td/text()')
+    result = htmlcon.xpath('//div[@class="BOC_main publish"]/table/tbody/tr/td/text()')
     datalist = [result[i:i + 8] for i in range(0, len(result), 8)]
     if len(datalist[-1]) < 8:
         datalist.pop()
@@ -75,8 +75,8 @@ if __name__ == '__main__':
                                 currencybuy FLOAT,
                                 cashbuy FLOAT,
                                 currencysell FLOAT,
-                                cashbuy FLOAT,
+                                cashsell FLOAT,
                                 cbankprice FLOAT,
-                                publishdate VARCHAR(20),
-                                publishtime VARCHAR(20))""")
+                                publishdatetime VARCHAR(30)
+                                )""")
 
