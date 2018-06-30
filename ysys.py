@@ -4,7 +4,6 @@ import datetime
 from pyExcelerator import *
 from pyExcelerator.Worksheet import *
 
-
 # 导入预收外汇账款
 yushoudata = xlrd.open_workbook("D:\py\yushouzk.xlsx")
 yushoutable = yushoudata.sheets()[0]
@@ -43,22 +42,26 @@ print type(pattern)
 style0 = XFStyle()
 style0.pattern = pattern
 
-
 redfontstyle = XFStyle()
 bluefontstyle = XFStyle()
+pinkfontstyle = XFStyle()
+
 redfontstyle.font.colour_index = 2
 bluefontstyle.font.colour_index = 4
+pinkfontstyle.font.colour_index = 6
 print type(redfontstyle)
 if len(alikelist) != 0:
     for data in alikelist:
         for i in range(len(data)):
             if (index + 1) % 3 == 0 and i == 12:
-                if data[i] > 100 or data[i] < -100:
+                if data[i] < -1000 or data[i] > 1000:
                     excel_sheet.write(index, i, data[i], redfontstyle)
-                else:
+                elif -100 < data[i] and data[i] < 100:
                     excel_sheet.write(index, i, data[i], bluefontstyle)
+                elif -1000 <= data[i] < -100 or 100 < data[i] <= 1000:
+                    excel_sheet.write(index, i, data[i], pinkfontstyle)
             else:
                 excel_sheet.write(index, i, data[i])
         index += 1
 
-excle_Workbook.save('D:\py\likewh.xls')
+excle_Workbook.save('D:\py\ysyswhh.xls')
