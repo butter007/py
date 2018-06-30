@@ -6,6 +6,7 @@ import re
 from selenium.webdriver.chrome.options import Options
 import sqlite3
 from lxml import html
+import time
 
 
 def get_content(url, searchDate, enddate, type, page=1):
@@ -55,36 +56,53 @@ def getPage(content):
     etree = html.etree
     htmlcon = etree.HTML(content)
     result = htmlcon.xpath('//div[@class="BOC_main publish"]/table/tbody/tr/td/text()')
-
     datalist = [result[i:i + 8] for i in range(0, len(result), 8)]
     if len(datalist[-1]) < 8:
         datalist.pop()
-    print(datalist)
-    print(type(datalist[0][0]))
     return datalist, pages
 
 
 if __name__ == '__main__':
+    now = lambda: time.time()
+    start = now()
     url = 'http://srh.bankofchina.com/search/whpj/search.jsp'
     content = get_content(url, '2001-01-01', '2017-12-31', '1316')
-    datalist, page = getPage(content)
+    datalist, pages = getPage(content)
     con = sqlite3.connect('e:/mydatabase.db3')
     cur = con.cursor()
     cur.execute("""CREATE TABLE rate (
                                 id INTERGER PRIMARY KEY ,
-                                name VARCHAR(40),
+                                name VARCHAR(30),
                                 currencybuy FLOAT,
                                 cashbuy FLOAT,
                                 currencysell FLOAT,
                                 cashsell FLOAT,
+                                wgprice FLOAT,
                                 cbankprice FLOAT,
-                                publishdatetime VARCHAR(30)
+                                publishdate VARCHAR(16),
+                                publishtime VARCHAR(16)
                                 )""")
     index = 1
     for dataitem in datalist:
-        cur.execute("""INSERT INTO rate (id,name,currencybuy,cashbuy,currencysell,cashsell,cbankprice,publishdatetime)
-              VALUES ('%d','%f', '%f', '%f', '%f', '%f','%f','%s' )""" % (
-        index, dataitem[1], dataitem[2], dataitem[3], dataitem[4], dataitem[5], dataitem[6], dataitem[7]))
+        # print (datalist)
+        datatimelist = dataitem[7].split()
+        cur.execute("""INSERT INTO rate (id,name,currencybuy,cashbuy,currencysell,cashsell,wgprice,cbankprice,publishdate,publishtime)
+              VALUES ('%d','%s','%f', '%f', '%f', '%f', '%f','%f','%s','%s' )""" % (
+            index, dataitem[0], float(dataitem[1]), float(dataitem[2]), float(dataitem[3]), float(dataitem[4]),
+            float(dataitem[5]),
+            float(dataitem[6]),
+            datatimelist[0], datatimelist[1]))
         index += 1
-    con.commit()
+    for page in range(2, pages + 1):
+        datatimelist = dataitem[7].split()
+        content = get_content(url, '2001-01-01', '2017-12-31', '1316', page)
+        datalist, abc = getPage(content)
+        for dataitem in datalist:
+            cur.execute("""INSERT INTO rate (id,name,currencybuy,cashbuy,currencysell,cashsell,wgprice,cbankprice,publishdate,publishtime)
+                 VALUES ('%d','%s','%f', '%f', '%f', '%f', '%f','%f','%s','%s' )""" % (
+                index, dataitem[0], float(dataitem[1]), float(dataitem[2]), float(dataitem[3]), float(dataitem[4]),
+                float(dataitem[5]), float(dataitem[6]), datatimelist[0], datatimelist[1]))
+            index += 1
+        con.commit()
     con.close()
+    print("Time:", now() - start)
