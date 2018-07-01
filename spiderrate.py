@@ -9,12 +9,7 @@ from lxml import html
 import time
 
 
-def get_content(url, searchDate, enddate, type, page=1):
-    chrome_options = Options()
-    chrome_options.add_argument('--headless')
-    chrome_options.add_argument('--disable-gpu')
-    chromedriver = 'C:/Python36/Scripts/chromedriver.exe'
-    browser = webdriver.Chrome(chromedriver, options=chrome_options)
+def get_content(browser, url, searchDate, enddate, type, page=1):
     browser.get(url)
     #    initial_time_input_tag = browser.find_element_by_name('erectDate')
     #    jserectDate = "$('input[name=erectDate]').attr('readonly',false)"
@@ -63,10 +58,15 @@ def getPage(content):
 
 
 if __name__ == '__main__':
+    chrome_options = Options()
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--disable-gpu')
+    chromedriver = 'C:/Python36/Scripts/chromedriver.exe'
+    browser = webdriver.Chrome(chromedriver, options=chrome_options)
     now = lambda: time.time()
     start = now()
     url = 'http://srh.bankofchina.com/search/whpj/search.jsp'
-    content = get_content(url, '2001-01-01', '2017-12-31', '1316')
+    content = get_content(browser, url, '2001-01-01', '2017-12-31', '1316')
     datalist, pages = getPage(content)
     con = sqlite3.connect('e:/mydatabase.db3')
     cur = con.cursor()
@@ -94,9 +94,9 @@ if __name__ == '__main__':
             datatimelist[0], datatimelist[1]))
         index += 1
     for page in range(2, pages + 1):
-        datatimelist = dataitem[7].split()
-        content = get_content(url, '2001-01-01', '2017-12-31', '1316', page)
+        content = get_content(browser,url, '2001-01-01', '2017-12-31', '1316', page)
         datalist, abc = getPage(content)
+        datatimelist = dataitem[7].split()
         for dataitem in datalist:
             cur.execute("""INSERT INTO rate (id,name,currencybuy,cashbuy,currencysell,cashsell,wgprice,cbankprice,publishdate,publishtime)
                  VALUES ('%d','%s','%f', '%f', '%f', '%f', '%f','%f','%s','%s' )""" % (
