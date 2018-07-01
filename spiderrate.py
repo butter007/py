@@ -96,8 +96,9 @@ if __name__ == '__main__':
     for page in range(2, pages + 1):
         content = get_content(browser,url, '2001-01-01', '2017-12-31', '1316', page)
         datalist, abc = getPage(content)
-        datatimelist = dataitem[7].split()
+
         for dataitem in datalist:
+            datatimelist = dataitem[7].split()
             cur.execute("""INSERT INTO rate (id,name,currencybuy,cashbuy,currencysell,cashsell,wgprice,cbankprice,publishdate,publishtime)
                  VALUES ('%d','%s','%f', '%f', '%f', '%f', '%f','%f','%s','%s' )""" % (
                 index, dataitem[0], float(dataitem[1]), float(dataitem[2]), float(dataitem[3]), float(dataitem[4]),
