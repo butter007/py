@@ -57,7 +57,7 @@ def getContentList(content):
     result = htmlcon.xpath('//div[@class="BOC_main publish"]/table/tbody/tr/td/text()')
     datalist = [result[i:i + 8] for i in range(0, len(result), 8)]
     # print(datalist)
-    if datalist[-1]==['\xa0']:
+    if datalist[-1] == ['\xa0']:
         datalist.pop()
     return datalist
 
@@ -92,17 +92,7 @@ if __name__ == '__main__':
                                 publishtime VARCHAR(16)
                                 )""")
 
-    datalist = getContentList(content)
-    for dataitem in datalist:
-        datatimelist = dataitem[7].split()
-        cur.execute("""INSERT INTO rate (name,currencybuy,cashbuy,currencysell,cashsell,wgprice,cbankprice,publishdate,publishtime)
-              VALUES ('%s','%f', '%f', '%f', '%f', '%f','%f','%s','%s' )""" % (
-            dataitem[0], float(dataitem[1]), float(dataitem[2]), float(dataitem[3]), float(dataitem[4]),
-            float(dataitem[5]),
-            float(dataitem[6]),
-            datatimelist[0], datatimelist[1]))
-
-    for page in range(2, pages + 1):
+    for page in range(1, pages + 1):
         content = get_content(browser, url, '2001-01-01', '2017-12-31', '1316', page)
         datalist = getContentList(content)
         for dataitem in datalist:
