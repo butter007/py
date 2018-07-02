@@ -42,36 +42,45 @@ def get_content(browser, url, searchDate, enddate, type, page=1):
     return browser.page_source
 
 
-def getPage(content):
+def getPages(content):
     pat = re.compile('m_nRecordCount = \d+')
     li = pat.findall(content)
     if li:
         mcounts = li[0].split()[2]
     pages = int(mcounts) // 20 + 1
+    return pages
+
+
+def getContentList(content):
     etree = html.etree
     htmlcon = etree.HTML(content)
     result = htmlcon.xpath('//div[@class="BOC_main publish"]/table/tbody/tr/td/text()')
     datalist = [result[i:i + 8] for i in range(0, len(result), 8)]
-    if len(datalist[-1]) < 8:
+    # print(datalist)
+    if datalist[-1]==['\xa0']:
         datalist.pop()
-    return datalist, pages
+    return datalist
 
 
 if __name__ == '__main__':
+    # 启动无头chrome
     chrome_options = Options()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--disable-gpu')
     chromedriver = 'C:/Python36/Scripts/chromedriver.exe'
     browser = webdriver.Chrome(chromedriver, options=chrome_options)
+
     now = lambda: time.time()
     start = now()
     url = 'http://srh.bankofchina.com/search/whpj/search.jsp'
     content = get_content(browser, url, '2001-01-01', '2017-12-31', '1316')
-    datalist, pages = getPage(content)
+    # 第一次获取页数
+    pages = getPages(content)
+
     con = sqlite3.connect('e:/mydatabase.db3')
     cur = con.cursor()
     cur.execute("""CREATE TABLE rate (
-                                id INTERGER PRIMARY KEY ,
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
                                 name VARCHAR(30),
                                 currencybuy FLOAT,
                                 cashbuy FLOAT,
@@ -82,28 +91,26 @@ if __name__ == '__main__':
                                 publishdate VARCHAR(16),
                                 publishtime VARCHAR(16)
                                 )""")
-    index = 1
+
+    datalist = getContentList(content)
     for dataitem in datalist:
-        # print (datalist)
         datatimelist = dataitem[7].split()
-        cur.execute("""INSERT INTO rate (id,name,currencybuy,cashbuy,currencysell,cashsell,wgprice,cbankprice,publishdate,publishtime)
-              VALUES ('%d','%s','%f', '%f', '%f', '%f', '%f','%f','%s','%s' )""" % (
-            index, dataitem[0], float(dataitem[1]), float(dataitem[2]), float(dataitem[3]), float(dataitem[4]),
+        cur.execute("""INSERT INTO rate (name,currencybuy,cashbuy,currencysell,cashsell,wgprice,cbankprice,publishdate,publishtime)
+              VALUES ('%s','%f', '%f', '%f', '%f', '%f','%f','%s','%s' )""" % (
+            dataitem[0], float(dataitem[1]), float(dataitem[2]), float(dataitem[3]), float(dataitem[4]),
             float(dataitem[5]),
             float(dataitem[6]),
             datatimelist[0], datatimelist[1]))
-        index += 1
-    for page in range(2, pages + 1):
-        content = get_content(browser,url, '2001-01-01', '2017-12-31', '1316', page)
-        datalist, abc = getPage(content)
 
+    for page in range(2, pages + 1):
+        content = get_content(browser, url, '2001-01-01', '2017-12-31', '1316', page)
+        datalist = getContentList(content)
         for dataitem in datalist:
             datatimelist = dataitem[7].split()
-            cur.execute("""INSERT INTO rate (id,name,currencybuy,cashbuy,currencysell,cashsell,wgprice,cbankprice,publishdate,publishtime)
-                 VALUES ('%d','%s','%f', '%f', '%f', '%f', '%f','%f','%s','%s' )""" % (
-                index, dataitem[0], float(dataitem[1]), float(dataitem[2]), float(dataitem[3]), float(dataitem[4]),
+            cur.execute("""INSERT INTO rate (name,currencybuy,cashbuy,currencysell,cashsell,wgprice,cbankprice,publishdate,publishtime)
+                 VALUES ('%s','%f', '%f', '%f', '%f', '%f','%f','%s','%s' )""" % (
+                dataitem[0], float(dataitem[1]), float(dataitem[2]), float(dataitem[3]), float(dataitem[4]),
                 float(dataitem[5]), float(dataitem[6]), datatimelist[0], datatimelist[1]))
-            index += 1
         con.commit()
     con.close()
     print("Time:", now() - start)
