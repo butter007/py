@@ -54,9 +54,13 @@ def getPages(content):
 def getContentList(content):
     etree = html.etree
     htmlcon = etree.HTML(content)
-    result = htmlcon.xpath('//div[@class="BOC_main publish"]/table/tbody/tr/td/text()')
-    datalist = [result[i:i + 8] for i in range(0, len(result), 8)]
-    # print(datalist)
+    result = htmlcon.xpath('//div[@class="BOC_main publish"]/table/tbody/tr/td')
+    filterlist = []
+    for item in result:
+        if item.text == None:
+            item.text = '0'
+        filterlist.append(item.text)
+    datalist = [filterlist[i:i + 8] for i in range(0, len(filterlist), 8)]
     if datalist[-1] == ['\xa0']:
         datalist.pop()
     return datalist
@@ -73,27 +77,27 @@ if __name__ == '__main__':
     now = lambda: time.time()
     start = now()
     url = 'http://srh.bankofchina.com/search/whpj/search.jsp'
-    content = get_content(browser, url, '2001-01-01', '2017-12-31', '1316')
+    content = get_content(browser, url, '2001-01-01', '2011-10-31', '1316')
     # 第一次获取页数
     pages = getPages(content)
-
+    datalist = getContentList(content)
     con = sqlite3.connect('e:/mydatabase.db3')
     cur = con.cursor()
-    cur.execute("""CREATE TABLE rate (
-                                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                name VARCHAR(30),
-                                currencybuy FLOAT,
-                                cashbuy FLOAT,
-                                currencysell FLOAT,
-                                cashsell FLOAT,
-                                wgprice FLOAT,
-                                cbankprice FLOAT,
-                                publishdate VARCHAR(16),
-                                publishtime VARCHAR(16)
-                                )""")
+    # cur.execute("""CREATE TABLE rate (
+    #                             id INTEGER PRIMARY KEY AUTOINCREMENT,
+    #                             name VARCHAR(30),
+    #                             currencybuy FLOAT,
+    #                             cashbuy FLOAT,
+    #                             currencysell FLOAT,
+    #                             cashsell FLOAT,
+    #                             wgprice FLOAT,
+    #                             cbankprice FLOAT,
+    #                             publishdate VARCHAR(16),
+    #                             publishtime VARCHAR(16)
+    #                             )""")
 
     for page in range(1, pages + 1):
-        content = get_content(browser, url, '2001-01-01', '2017-12-31', '1316', page)
+        content = get_content(browser, url, '2001-01-01', '2011-10-31', '1316', page)
         datalist = getContentList(content)
         for dataitem in datalist:
             datatimelist = dataitem[7].split()
