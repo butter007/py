@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*- 
 import xlrd
 import datetime
-from pyExcelerator import *
-from pyExcelerator.Worksheet import *
+import openpyxl
+from openpyxl.styles import Font,colors,Color
 
 # 签收库里的数据导入
 txt = open("D:\py\sign.txt")
@@ -20,7 +20,6 @@ txt.close()
 # target = open("D:\py\out.txt",'a+');
 # for str in li :
 #    target.write(str)
-print len(li)
 # target.close()
 
 # 部门做账数据列表
@@ -47,7 +46,6 @@ for data in col:
         temp.append(data)
     else:
         unsignedtemp.append(data)
-print len(temp)
 
 # print li.count('SUZJ17070076')
 
@@ -69,47 +67,48 @@ for data in temp:
     elif data.startswith('SUZJ1710') or data.startswith('SUZJ1810'):
         listtensuzj.append(data)
 
-excle_Workbook = Workbook()
+excle_Workbook = openpyxl.Workbook()
 excel_sheet_name = datetime.datetime.now().strftime('%Y-%m-%d')
-excel_sheet = excle_Workbook.add_sheet(excel_sheet_name)
+excel_sheet = excle_Workbook.active
+excel_sheet.title = excel_sheet_name
 
-index = 0
+index = 1
 if len(listthreelw) != 0:
     for data in listthreelw:
-        excel_sheet.write(index, 1, data)
+        excel_sheet.cell(index, 1, data)
         index += 1
 
 if len(listthreesuzj) != 0:
     for data in listthreesuzj:
-        excel_sheet.write(index, 1, data)
+        excel_sheet.cell(index, 1, data)
         index += 1
 
 if len(listsevenlw) != 0:
     for data in listsevenlw:
-        excel_sheet.write(index, 1, data)
+        excel_sheet.cell(index, 1, data)
         index += 1
 
 if len(listsevensuzj) != 0:
     for data in listsevensuzj:
-        excel_sheet.write(index, 1, data)
+        excel_sheet.cell(index, 1, data)
         index += 1
 
 if len(listtenlw) != 0:
     for data in listtenlw:
-        excel_sheet.write(index, 1, data)
+        excel_sheet.cell(index, 1, data)
         index += 1
 
 if len(listtensuzj) != 0:
     for data in listtensuzj:
-        excel_sheet.write(index, 1, data)
+        excel_sheet.cell(index, 1, data)
         index += 1
 
-unsignindex=0
+unsignindex=1
 if unsignedtemp:
     for data in unsignedtemp:
     	if data.startswith('LW1703') or data.startswith('LW1803')or data.startswith('SUZJ1703') or data.startswith('SUZJ1803') or data.startswith('LW1707') or data.startswith('LW1807') or data.startswith('SUZJ1707') or data.startswith('SUZJ1807') or data.startswith('LW1710') or data.startswith('LW1810') or data.startswith('SUZJ1710') or data.startswith('SUZJ1810'):
-        	excel_sheet.write(unsignindex, 3, data)
+        	excel_sheet.cell(unsignindex, 4, data)
         	unsignindex += 1
 
 
-excle_Workbook.save('D:\py\pest.xls')
+excle_Workbook.save('D:\py\pest.xlsx')

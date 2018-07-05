@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*- 
 import xlrd
 import datetime
-from pyExcelerator import *
-from pyExcelerator.Worksheet import *
+import openpyxl
+from openpyxl.styles import Font,colors,Color
 
 # 导入预收外汇账款
 yushoudata = xlrd.open_workbook("D:\py\yushouzk.xlsx")
@@ -28,40 +28,44 @@ for i in range(1, yushounrows):
             m = yushoutable.row_values(i)[13] - li[13]
             alikelist.append(['', '', '', '', '', '', '', '', '', '', '', '', m, '', ''])
 
-print len(alikelist)
+print(len(alikelist))
 
-excle_Workbook = Workbook()
+excle_Workbook = openpyxl.Workbook()
 excel_sheet_name = datetime.datetime.now().strftime('%Y-%m-%d')
-excel_sheet = excle_Workbook.add_sheet(excel_sheet_name)
+excel_sheet = excle_Workbook.active
+excel_sheet.title = excel_sheet_name
 
-index = 0
-pattern = Pattern()
-# 设置底纹颜色
-pattern.pattern_back_colour = 0x0A
-print type(pattern)
-style0 = XFStyle()
-style0.pattern = pattern
-
-redfontstyle = XFStyle()
-bluefontstyle = XFStyle()
-pinkfontstyle = XFStyle()
-
-redfontstyle.font.colour_index = 2
-bluefontstyle.font.colour_index = 4
-pinkfontstyle.font.colour_index = 6
-print type(redfontstyle)
+index = 1
+# pattern = Pattern()
+# # 设置底纹颜色
+# pattern.pattern_back_colour = 0x0A
+# print (type(pattern))
+# style0 = XFStyle()
+# style0.pattern = pattern
+#
+# redfontstyle = XFStyle()
+# bluefontstyle = XFStyle()
+# pinkfontstyle = XFStyle()
+#
+# redfontstyle.font.colour_index = 2
+# bluefontstyle.font.colour_index = 4
+# pinkfontstyle.font.colour_index = 6
+# print (type(redfontstyle))
 if len(alikelist) != 0:
     for data in alikelist:
         for i in range(len(data)):
-            if (index + 1) % 3 == 0 and i == 12:
+            if (index) % 3 == 0 and i == 12:
                 if data[i] < -1000 or data[i] > 1000:
-                    excel_sheet.write(index, i, data[i], redfontstyle)
+                    excel_sheet.cell(index, i + 1, data[i])
+                    excel_sheet.cell(index, i + 1).font = Font(color=colors.RED)
                 elif -100 < data[i] and data[i] < 100:
-                    excel_sheet.write(index, i, data[i], bluefontstyle)
+                    excel_sheet.cell(index, i + 1, data[i])
+                    excel_sheet.cell(index, i + 1).font = Font(color=colors.BLUE)
                 elif -1000 <= data[i] < -100 or 100 < data[i] <= 1000:
-                    excel_sheet.write(index, i, data[i], pinkfontstyle)
+                    excel_sheet.cell(index, i + 1, data[i])
+                    excel_sheet.cell(index, i + 1).font = Font(color='00FF00FF')
             else:
-                excel_sheet.write(index, i, data[i])
+                excel_sheet.cell(index, i + 1, data[i])
         index += 1
 
-excle_Workbook.save('D:\py\ysyswhh.xls')
+excle_Workbook.save('D:\py\ysyswhh.xlsx')
