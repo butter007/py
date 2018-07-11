@@ -11,7 +11,7 @@ for line in txt:
     if line.startswith('LW') or line.startswith('SUZJ') or line.startswith("K25"):
         # 去掉签收库导出的数据的换行符
         line = line[:-1]
-        line = line.encode('utf-8')
+ #       line = line.encode('utf-8')
         li.append(line)
 txt.close()
 
@@ -75,39 +75,42 @@ excel_sheet.title = excel_sheet_name
 index = 1
 if len(listthreelw) != 0:
     for data in listthreelw:
-        excel_sheet.cell(index, 1, data)
+        excel_sheet.cell(index, 2, data)
         index += 1
 
 if len(listthreesuzj) != 0:
     for data in listthreesuzj:
-        excel_sheet.cell(index, 1, data)
+        excel_sheet.cell(index, 2, data)
         index += 1
 
+excel_sheet.cell(index, 2, '')
+index+=1
 if len(listsevenlw) != 0:
     for data in listsevenlw:
-        excel_sheet.cell(index, 1, data)
+        excel_sheet.cell(index, 2, data)
         index += 1
 
 if len(listsevensuzj) != 0:
     for data in listsevensuzj:
-        excel_sheet.cell(index, 1, data)
+        excel_sheet.cell(index, 2, data)
         index += 1
-
+excel_sheet.cell(index, 2, '')
+index+=1
 if len(listtenlw) != 0:
     for data in listtenlw:
-        excel_sheet.cell(index, 1, data)
+        excel_sheet.cell(index, 2, data)
         index += 1
 
 if len(listtensuzj) != 0:
     for data in listtensuzj:
-        excel_sheet.cell(index, 1, data)
+        excel_sheet.cell(index, 2, data)
         index += 1
 
 unsignindex=1
 if unsignedtemp:
     for data in unsignedtemp:
     	if data.startswith('LW1703') or data.startswith('LW1803')or data.startswith('SUZJ1703') or data.startswith('SUZJ1803') or data.startswith('LW1707') or data.startswith('LW1807') or data.startswith('SUZJ1707') or data.startswith('SUZJ1807') or data.startswith('LW1710') or data.startswith('LW1810') or data.startswith('SUZJ1710') or data.startswith('SUZJ1810'):
-        	excel_sheet.cell(unsignindex, 4, data)
+        	excel_sheet.cell(unsignindex, 6, data)
         	unsignindex += 1
 
 
